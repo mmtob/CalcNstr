@@ -16,7 +16,9 @@ STATIC_LIB_NAME = libstatic.a
 SHORT_STATIC_LIB_NAME = static
 
 SRCS = ${wildcard ${SRC_DIR}/*.c}
-OBJS = ${patsubst ${SRC_DIR}/%.c,${BUILD_DIR}/%.o,${SRCS}}
+OBJS_T1 = ${patsubst ${SRC_DIR}/%.c,${BUILD_DIR}/%.tsk1.o,${SRCS}}
+OBJS_T2 = ${patsubst ${SRC_DIR}/%.c,${BUILD_DIR}/%.tsk2.o,${SRCS}}
+OBJS_T3 = ${patsubst ${SRC_DIR}/%.c,${BUILD_DIR}/%.tsk3.o,${SRCS}}
 
 STC_SRCS = ${wildcard ${STATIC_SRC_DIR}/*.c}
 STC_OBJS = ${patsubst ${STATIC_SRC_DIR}/%.c,${STATIC_LIB_DIR}/%.o,${STC_SRCS}}
@@ -34,23 +36,23 @@ TASK3_TARGET = ${BIN_DIR}/task3
 
 all: task1 task2 task3
 
-task1: CFLAGS += -DUSE_TASK1
+task1: TASK_N = -DUSE_TASK1
 task1: ${TASK1_TARGET}
 
-task2: CFLAGS += -DUSE_TASK2
+task2: TASK_N = -DUSE_TASK2
 task2: ${TASK2_TARGET}
 
-task3: CFLAGS += -DUSE_TASK3
+task3: TASK_N = -DUSE_TASK1 -DUSE_TASK2
 task3: ${TASK3_TARGET}
 
-${TASK1_TARGET}: ${OBJS} ${STC_LIB} ${BIN_DIR}
-	${CC} ${OBJS} -o $@ -L${STATIC_LIB_DIR} -l${SHORT_STATIC_LIB_NAME}
+${TASK1_TARGET}: ${OBJS_T1} ${STC_LIB} ${BIN_DIR}
+	${CC} ${CFLAGS} ${OBJS_T1} -o $@ -L${STATIC_LIB_DIR} -l${SHORT_STATIC_LIB_NAME}
 
-${TASK2_TARGET}: ${OBJS} ${SHRD_LIB} ${BIN_DIR}
-	${CC} ${OBJS} -o $@ -L${SHARED_LIB_DIR} -l${SHORT_SHARED_LIB_NAME}
+${TASK2_TARGET}: ${OBJS_T2} ${SHRD_LIB} ${BIN_DIR}
+	${CC} ${CFLAGS} ${OBJS_T2} -o $@ -L${SHARED_LIB_DIR} -l${SHORT_SHARED_LIB_NAME}
 
-${TASK3_TARGET}: ${OBJS} ${SHRD_LIB} ${STC_LIB} ${BIN_DIR}
-	${CC} ${OBJS} -o $@ -L${SHARED_LIB_DIR} -L${STATIC_LIB_DIR} -l${SHORT_SHARED_LIB_NAME} -l${SHORT_STATIC_LIB_NAME}
+${TASK3_TARGET}: ${OBJS_T3} ${SHRD_LIB} ${STC_LIB} ${BIN_DIR}
+	${CC} ${CFLAGS} ${OBJS_T3} -o $@ -L${SHARED_LIB_DIR} -L${STATIC_LIB_DIR} -l${SHORT_SHARED_LIB_NAME} -l${SHORT_STATIC_LIB_NAME}
 
 ${STC_LIB}: ${STC_OBJS} | ${STATIC_LIB_DIR}
 	ar rcs $@ $^
@@ -70,8 +72,14 @@ ${STATIC_LIB_DIR}:
 ${BIN_DIR}:
 	mkdir -p ${BIN_DIR}
 
-${BUILD_DIR}/%.o: ${SRC_DIR}/%.c ${BUILD_DIR}
-	${CC} ${CFLAGS} -c $< -o $@
+${OBJS_T1}: build/%.tsk1.o: src/%.c ${BUILD_DIR}
+	${CC} ${CFLAGS} ${TASK_N} -c $< -o $@
+
+${OBJS_T2}: build/%.tsk2.o: src/%.c ${BUILD_DIR}
+	${CC} ${CFLAGS} ${TASK_N} -c $< -o $@
+
+${OBJS_T3}: build/%.tsk3.o: src/%.c ${BUILD_DIR}
+	${CC} ${CFLAGS} ${TASK_N} -c $< -o $@
 
 ${STATIC_LIB_DIR}/%.o: ${STATIC_SRC_DIR}/%.c ${STATIC_LIB_DIR}
 	${CC} ${CFLAGS} -c $< -o $@

@@ -1,22 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef USE_TASK1
 #include "static_lib.h"
+#endif
+
+#ifdef USE_TASK2
 #include "dynamic_lib.h"
+#endif
 
 
 int main()
 {
     long long a;
 
-
-#if defined(USE_TASK2) || defined(USE_TASK3)
+#ifdef USE_TASK2
     char input[256];
 #endif
 
-
-#if defined(USE_TASK1) || defined(USE_TASK3)
-
+#ifdef USE_TASK1
     double d;
 
     printf("\nOperations:\n");
@@ -55,18 +57,13 @@ int main()
     }
 #endif
 
-
-#if defined(USE_TASK2) || defined(USE_TASK3)
-
-    
-    
-
+#ifdef USE_TASK2
     printf("\nOperations:\n");
     printf("\
     1) Convert text to UPPERCASE\n\
     2) Convert text to lowercase\n");
 
-    printf("Choose operation, enter number: ");
+    printf("Choose operation number: ");
     scanf("%Ld", &a);
     printf("Now enter your string: ");
     scanf(" %[^\n]%*c", input);
@@ -75,10 +72,7 @@ int main()
         case 2: printf("%s\n", to_lowercase(input)); break;
         default: printf("I`m sooooooooo sorry i don`t know this command!\n");
     }
-
 #endif
-
-
 
     return 0;
 }
